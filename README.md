@@ -1,2 +1,2 @@
-# math
-PD LibM
+## PDLibM
+Public Domain LibM
