@@ -1,0 +1,1 @@
+for f in *.c; do clang -c $f -O3 -w -I.; done ; ar rcs libm.a *o ; rm *o
