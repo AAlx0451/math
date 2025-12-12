@@ -1,6 +1,6 @@
 /*
  * Part of PD LibM
- * Originally made for Small-LibC 
+ * Originally made for Small-LibC
  */
 
 /*
@@ -13,9 +13,10 @@
 
 static const double M_PI = 3.14159265358979323846;
 static const double M_PI_2 = 1.57079632679489661923;
+static const double M_PI_4 = 0.78539816339744830962;
 
 /* H&C #4941 Coefficients */
-static const double 
+static const double
 a0 = -0.33333333333333333333e0,
 a1 =  0.19999999999999999999e0,
 a2 = -0.14285714285714285714e0,
@@ -53,14 +54,41 @@ double atan(double x) {
 
 double atan2(double y, double x) {
     if (isnan(x) || isnan(y)) return NAN;
+
     if (x == 0.0) {
-        if (y == 0.0) return 0.0; /* Implementation defined, commonly 0 */
+        if (y == 0.0) {
+            /*
+             * atan2(+0, +0) = +0
+             * atan2(-0, +0) = -0
+             * atan2(+0, -0) = +pi
+             * atan2(-0, -0) = -pi
+             */
+             return (signbit(x)) ? (signbit(y) ? -M_PI : M_PI) 
+                                 : y;
+        }
         return (y > 0) ? M_PI_2 : -M_PI_2;
     }
-    
-    double z = y / x;
-    double res = atan(fabs(z)); // Always positive result 0..pi/2
 
+    if (y == 0.0) {
+        if (x > 0) return y;
+        return signbit(y) ? -M_PI : M_PI;
+    }
+
+    if (isinf(x) || isinf(y)) {
+        if (isinf(x)) {
+            if (isinf(y)) {
+                if (x > 0) return (y > 0) ? M_PI_4 : -M_PI_4;
+                else       return (y > 0) ? 3.0*M_PI_4 : -3.0*M_PI_4;
+            }
+            if (x > 0) return (y > 0) ? 0.0 : -0.0;
+            return (y > 0) ? M_PI : -M_PI;
+        }
+        return (y > 0) ? M_PI_2 : -M_PI_2;
+    }
+
+    double z = y / x;
+    double res = atan(fabs(z)); 
+    
     if (x > 0.0) {
         return (y < 0.0) ? -res : res;
     } else {

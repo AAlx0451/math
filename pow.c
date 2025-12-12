@@ -1,6 +1,6 @@
 /*
  * Part of PD LibM
- * Originally made for Small-LibC 
+ * Originally made for Small-LibC
  */
 
 #include <math.h>
@@ -10,6 +10,15 @@ double pow(double x, double y) {
     if (y == 0.0) return 1.0;
     if (x == 1.0) return 1.0;
     if (isnan(x) || isnan(y)) return NAN;
+
+    /* IEEE 754: Handling of infinite y */
+    if (isinf(y)) {
+        if (x == -1.0) return 1.0;
+        
+        double absx = fabs(x);
+        if (absx < 1.0) return (y > 0.0) ? 0.0 : HUGE_VAL;
+        if (absx > 1.0) return (y > 0.0) ? HUGE_VAL : 0.0;
+    }
 
     /* Handle integer y cases for negative x */
     double y_int;
@@ -21,6 +30,7 @@ double pow(double x, double y) {
             errno = ERANGE;
             return odd_int ? (signbit(x) ? -HUGE_VAL : HUGE_VAL) : HUGE_VAL;
         }
+        /* +0 or -0 */
         return odd_int ? (signbit(x) ? -0.0 : 0.0) : 0.0;
     }
 

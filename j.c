@@ -6,7 +6,6 @@
 /*
  * Academic Source:
  * Hart & Cheney: #6050, #6750, #7150, #5849, etc.
- * Logic adapted from UNIX v7 LibM (Public knowledge / Academic).
  */
 
 #include <math.h>
