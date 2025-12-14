@@ -1,36 +1,53 @@
 /*
  * Part of PD LibM
- * Originally made for Small-LibC 
  */
 
+#include "math_private.h"
 #include <math.h>
-#include <stdint.h>
 
 double ceil(double x) {
-    union { double f; uint64_t i; } u;
-    u.f = x;
-    int e = (int)((u.i >> 52) & 0x7FF) - 1023;
+    uint64_t i;
+    EXTRACT_WORD64(i, x);
     
+    /* Extract exponent: bits 62-52 */
+    int e = (int)((i >> 52) & 0x7FF) - 1023;
+
+    /* Case 1: Exponent is large (>= 52). Number is already integer. */
     if (e >= 52) return x;
+
+    /* Case 2: Exponent is negative. 0 < |x| < 1. */
     if (e < 0) {
-        if (x == 0.0) return x;
-        return (x > 0.0) ? 1.0 : -0.0;
+        /* If x is 0.0 or -0.0, return x */
+        if ((i & 0x7FFFFFFFFFFFFFFFULL) == 0) return x;
+        
+        /* If x > 0, ceil is 1.0 */
+        if ((i >> 63) == 0) return 1.0;
+        
+        /* If x < 0, ceil is -0.0 */
+        return -0.0;
     }
-    
+
+    /* Case 3: Normal range with fractional part */
     uint64_t m = 0xFFFFFFFFFFFFFFFFULL >> (12 + e);
-    if ((u.i & m) == 0) return x;
     
-    if (x > 0.0) u.f += 1.0;
-    u.i &= ~m;
-    if (x > 0.0) u.f -= 1.0;
-    u.f = x;
-    /* Reset logic */
-    if (x > 0.0) {
-        u.f += 1.0;
-        u.i &= ~m;
-        u.f -= 1.0;
+    /* If fractional bits are already zero, return x */
+    if ((i & m) == 0) return x;
+
+    /* If positive, we truncate and add 1.0. 
+     * If negative, we just truncate (which moves towards 0, i.e., up for negatives).
+     */
+    if ((i >> 63) == 0) {
+        /* Positive: Mask fraction, implies floor. Add 1.0 safely */
+        /* It is safer to use float math for the increment to handle carry */
+        i &= ~m;
+        double r;
+        INSERT_WORD64(r, i);
+        return r + 1.0;
     } else {
-        u.i &= ~m;
+        /* Negative: Mask fraction (truncation) is ceil */
+        i &= ~m;
+        double r;
+        INSERT_WORD64(r, i);
+        return r;
     }
-    return u.f;
 }

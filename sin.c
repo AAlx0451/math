@@ -1,34 +1,65 @@
 /*
  * Part of PD LibM
- * Originally made for Small-LibC 
  */
 
-/*
- * Academic Source:
- * Hart & Cheney, "Computer Approximations", 1968.
- * Approximation #3370.
- * Range reduction: Cody & Waite (1980).
- */
-
-#include <math.h>
+#include "math_private.h"
 #include <errno.h>
-#include <stdint.h>
 
+/* Cody-Waite constants for Pi/2 reduction */
+static const double C1 = 1.57079632673412561417e+00; 
+static const double C2 = 6.07710050650619224932e-11;
+static const double C3 = 1.90821492927058770002e-20;
+static const double M_2_PI = 0.63661977236758134308;
+
+/* 
+ * Sin Kernel Coefficients (Radians)
+ * Range: [-pi/4, +pi/4]
+ * sin(x) ~ x + S1*x^3 + S2*x^5 ...
+ */
+static const double 
+S1 = -1.66666666666666324348e-01,
+S2 =  8.33333333332248946124e-03,
+S3 = -1.98412698298579493134e-04,
+S4 =  2.75573137070700676789e-06,
+S5 = -2.50507602534068634195e-08,
+S6 =  1.58969099521155010221e-10;
+
+/* 
+ * Cos Kernel Coefficients (Radians)
+ * Range: [-pi/4, +pi/4]
+ * cos(x) ~ 1 + C1*x^2 + C2*x^4 ...
+ */
 static const double
-p0 =  0.1357884097877375669092680e8,
-p1 = -0.4942908100902844161158627e7,
-p2 =  0.4401030535375266501944918e6,
-p3 = -0.1384727249982452873054457e5,
-p4 =  0.1459688406665768722226959e3,
-q0 =  0.8644558652922534429915149e7,
-q1 =  0.4081792252343299749395779e6,
-q2 =  0.9463096101538208180571257e4,
-q3 =  0.1326534908786136358911494e3;
+C1_c = -4.99999999999999888889e-01, /* Name changed to avoid collision with C1 reduction const */
+C2_c =  4.16666666666666019037e-02,
+C3_c = -1.38888888888741095749e-03,
+C4_c =  2.48015872894767294178e-05,
+C5_c = -2.75573143513906633035e-07,
+C6_c =  2.08757232129817482790e-09;
 
-static const double two_over_pi = 0.63661977236758134308;
-static const double c1 = 1.57079632673412561417e00;
-static const double c2 = 6.07710050650619224932e-11;
-static const double c3 = 1.90821492927058770002e-20;
+/* Kernel: sin(x) approx x + x^3 * P(x^2) */
+static inline double _sin_kernel(double x) {
+    double z = x * x;
+    double r = S6;
+    r = S5 + z * r;
+    r = S4 + z * r;
+    r = S3 + z * r;
+    r = S2 + z * r;
+    r = S1 + z * r;
+    return x + x * z * r;
+}
+
+/* Kernel: cos(x) approx 1 + x^2 * P(x^2) */
+static inline double _cos_kernel(double x) {
+    double z = x * x;
+    double r = C6_c;
+    r = C5_c + z * r;
+    r = C4_c + z * r;
+    r = C3_c + z * r;
+    r = C2_c + z * r;
+    r = C1_c + z * r;
+    return 1.0 + z * r;
+}
 
 double sin(double x) {
     if (!isfinite(x)) {
@@ -38,49 +69,56 @@ double sin(double x) {
     if (x == 0.0) return x;
 
     double y = fabs(x);
-    int n = (int)(y * two_over_pi + 0.5);
-    double r;
 
-    /* Cody-Waite range reduction */
-    if (n < 32768) {
-        r = (y - n * c1) - n * c2 - n * c3;
-    } else {
-        /* Fallback for large arguments */
-        double fn = floor(y * two_over_pi + 0.5);
-        r = y - fn * 1.57079632679489661923;
-        n = (int)fn;
+    /* 
+     * Argument Reduction.
+     * For y > 1e9, precision is lost entirely without 1024-bit pi.
+     * Returning 0.0 or error is safer than returning garbage.
+     */
+    if (y > 1.0e9) {
+        errno = EDOM;
+        return 0.0;
     }
 
-    if (x < 0) r = -r;
+    /* n = nearest integer to y / (pi/2) */
+    double n = floor(y * M_2_PI + 0.5);
+    
+    /* r = y - n * (pi/2) in high precision */
+    double r = (y - n * C1) - n * C2 - n * C3;
 
-    /* Map to primary range */
-    int quad = n & 3;
+    /* 
+     * Quadrant determination.
+     * n is double, but fits in int64 for reasonable inputs (< 1e9).
+     * We need n mod 4.
+     */
+    int quad = (int)((int64_t)n & 3);
+
+    /* Fix sign of r if x was negative? 
+     * Actually, better to solve for positive y, then fix sign of result.
+     * sin(-x) = -sin(x).
+     */
+
     double res;
 
     /*
-     * H&C #3370 computes sin(x)/x approx.
-     * We apply it to 'r'.
+     * sin(n * pi/2 + r)
+     * n=0: sin(r)       -> sin kernel
+     * n=1: sin(pi/2+r)  -> cos(r) -> cos kernel
+     * n=2: sin(pi+r)    -> -sin(r) -> sin kernel (neg)
+     * n=3: sin(3pi/2+r) -> -cos(r) -> cos kernel (neg)
      */
-    double x2 = r * r;
-    double num = ((p4 * x2 + p3) * x2 + p2) * x2 + p1;
-    num = num * x2 + p0;
-    double den = ((x2 + q3) * x2 + q2) * x2 + q1;
-    den = den * x2 + q0;
-    res = r * (num / den);
-
-    /* Cosine relation for quadrants 1 and 3: sin(x+pi/2) = cos(x) */
-    if (quad == 1 || quad == 3) {
-        double r_co = 1.57079632679489661923 - fabs(r);
-        double x2_co = r_co * r_co;
-        double num_co = ((p4 * x2_co + p3) * x2_co + p2) * x2_co + p1;
-        num_co = num_co * x2_co + p0;
-        double den_co = ((x2_co + q3) * x2_co + q2) * x2_co + q1;
-        den_co = den_co * x2_co + q0;
-        res = r_co * (num_co / den_co);
-        if (r < 0) res = res; /* cos is even */
+    
+    if (quad == 0) {
+        res = _sin_kernel(r);
+    } else if (quad == 1) {
+        res = _cos_kernel(r);
+    } else if (quad == 2) {
+        res = -_sin_kernel(r);
+    } else { /* quad == 3 */
+        res = -_cos_kernel(r);
     }
 
-    if (quad > 1) res = -res;
+    if (x < 0) res = -res;
 
     return res;
 }

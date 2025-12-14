@@ -1,21 +1,14 @@
 /*
  * Part of PD LibM
- * Originally made for Small-LibC
  */
 
-/*
- * Academic Source:
- * Hart & Cheney #4941 for Atan.
- */
-
-#include <math.h>
+#include "math_private.h"
 #include <errno.h>
 
 static const double M_PI = 3.14159265358979323846;
 static const double M_PI_2 = 1.57079632679489661923;
-static const double M_PI_4 = 0.78539816339744830962;
 
-/* H&C #4941 Coefficients */
+/* Coefficients for Atan (Hart & Cheney) */
 static const double
 a0 = -0.33333333333333333333e0,
 a1 =  0.19999999999999999999e0,
@@ -28,7 +21,6 @@ a7 =  0.05882352941176470588e0;
 
 static double _atan_core(double x) {
     double x2 = x * x;
-    /* Minimax polynomial for x in [0, 1] */
     double p = a7;
     p = a6 + x2 * p;
     p = a5 + x2 * p;
@@ -43,7 +35,6 @@ static double _atan_core(double x) {
 double atan(double x) {
     double absx = fabs(x);
     double res;
-
     if (absx > 1.0) {
         res = M_PI_2 - _atan_core(1.0 / absx);
     } else {
@@ -55,44 +46,62 @@ double atan(double x) {
 double atan2(double y, double x) {
     if (isnan(x) || isnan(y)) return NAN;
 
+    /* Handle Signed Zeros and Signs explicitly BEFORE division */
+    uint64_t ix, iy;
+    EXTRACT_WORD64(ix, x);
+    EXTRACT_WORD64(iy, y);
+
+    int sign_x = (ix >> 63);
+    int sign_y = (iy >> 63);
+
+    /* x = +/- 0 */
     if (x == 0.0) {
         if (y == 0.0) {
-            /*
-             * atan2(+0, +0) = +0
-             * atan2(-0, +0) = -0
-             * atan2(+0, -0) = +pi
-             * atan2(-0, -0) = -pi
+            /* 
+             * (+0, +0) -> +0
+             * (-0, +0) -> -0
+             * (+0, -0) -> +pi
+             * (-0, -0) -> -pi
              */
-             return (signbit(x)) ? (signbit(y) ? -M_PI : M_PI) 
-                                 : y;
+            return sign_y ? (sign_x ? -M_PI : -0.0) 
+                          : (sign_x ?  M_PI :  0.0);
         }
         return (y > 0) ? M_PI_2 : -M_PI_2;
     }
 
+    /* y = +/- 0 */
     if (y == 0.0) {
-        if (x > 0) return y;
-        return signbit(y) ? -M_PI : M_PI;
+        return (x > 0) ? y : (sign_y ? -M_PI : M_PI);
     }
 
+    /* Inf handling */
     if (isinf(x) || isinf(y)) {
         if (isinf(x)) {
             if (isinf(y)) {
-                if (x > 0) return (y > 0) ? M_PI_4 : -M_PI_4;
-                else       return (y > 0) ? 3.0*M_PI_4 : -3.0*M_PI_4;
+                double v = (y > 0) ? M_PI/4 : -M_PI/4;
+                return (x > 0) ? v : (y > 0 ? 3*v : -3*v); // Correct quadrants for inf/inf
             }
-            if (x > 0) return (y > 0) ? 0.0 : -0.0;
-            return (y > 0) ? M_PI : -M_PI;
+            return (x > 0) ? (sign_y ? -0.0 : 0.0) : (sign_y ? -M_PI : M_PI);
         }
         return (y > 0) ? M_PI_2 : -M_PI_2;
     }
 
+    /* Calculate z safely */
     double z = y / x;
-    double res = atan(fabs(z)); 
-    
-    if (x > 0.0) {
-        return (y < 0.0) ? -res : res;
+    double az = fabs(z);
+    double ret;
+
+    /* Standard atan reduction */
+    if (az > 1.0) {
+        ret = M_PI_2 - _atan_core(1.0 / az);
     } else {
-        /* x < 0 */
-        return (y < 0.0) ? -M_PI + res : M_PI - res;
+        ret = _atan_core(az);
+    }
+
+    /* Quadrant placement based on original signs */
+    if (x > 0) {
+        return (y < 0) ? -ret : ret;
+    } else {
+        return (y < 0) ? -M_PI + ret : M_PI - ret;
     }
 }
