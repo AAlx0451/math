@@ -5,8 +5,10 @@
 
 /*
  * Academic Source:
- * Standard Range Reduction + Minimax/Pade.
+ * Standard Range Reduction + Taylor Series up to degree 12.
  * exp(x) = 2^k * exp(r)
+ * 
+ * Degree 12 is required to keep error below 1e-16 for |r| < ln(2)/2.
  */
 
 #include <math.h>
@@ -17,44 +19,64 @@ static const double LN2_HI = 6.93147180369123816490e-01;
 static const double LN2_LO = 1.90821492927058770002e-10;
 static const double INV_LN2 = 1.44269504088896340736;
 
-/* Pade coefficients for exp(r) where |r| < ln2/2 */
+/* Inverse factorial coefficients for Taylor series: 1/n! */
 static const double
-P1 = 1.66666666666666019037e-01,
-P2 = -2.77777777770155933842e-03,
-P3 = 6.61375632143793436117e-05,
-P4 = -1.65339022054652515390e-06,
-P5 = 4.13813679705723846039e-08;
+P3  = 1.66666666666666666667e-01, /* 1/6 */
+P4  = 4.16666666666666666667e-02, /* 1/24 */
+P5  = 8.33333333333333333333e-03, /* 1/120 */
+P6  = 1.38888888888888888889e-03, /* 1/720 */
+P7  = 1.98412698412698412698e-04, /* 1/5040 */
+P8  = 2.48015873015873015873e-05, /* 1/40320 */
+P9  = 2.75573192239858906526e-06, /* 1/362880 */
+P10 = 2.75573192239858906526e-07, /* 1/3628800 */
+P11 = 2.50521083854417187751e-08, /* 1/39916800 */
+P12 = 2.08767569878680989792e-09; /* 1/479001600 */
 
 double exp(double x) {
     if (isnan(x)) return x;
     if (x == HUGE_VAL) return x;
     if (x == -HUGE_VAL) return 0.0;
 
-    /* Boundary check roughly log(DBL_MAX) */
+    /* Boundary check: exp(709.78) overflows double */
     if (x > 709.78) {
         errno = ERANGE;
         return HUGE_VAL;
     }
-    
+
     if (x < -745.0) {
-        errno = ERANGE;
+        /* Underflow to true zero */
         return 0.0;
     }
 
     /* Range reduction: k = round(x / ln2) */
-    int k = (int)floor(x * INV_LN2 + 0.5);
-    double r = x - k * LN2_HI - k * LN2_LO;
+    double _z = floor(x * INV_LN2 + 0.5);
+    int k = (int)_z;
+    
+    /* r = x - k * ln2 */
+    /* Calculated with extra precision using LN2_HI/LO to minimize error */
+    double r = (x - _z * LN2_HI) - _z * LN2_LO;
 
-    /* Pade approximation exp(r) ~ 1 + 2r / (2 - r + r^2 * P(r^2)) */
+    /* 
+     * Horner's scheme for exp(r) - 1 - r - r^2/2
+     * Poly = r^3/6 + ... + r^12/12!
+     */
+    double p = P12;
+    p = P11 + r * p;
+    p = P10 + r * p;
+    p = P9 + r * p;
+    p = P8 + r * p;
+    p = P7 + r * p;
+    p = P6 + r * p;
+    p = P5 + r * p;
+    p = P4 + r * p;
+    p = P3 + r * p;
+
+    /* 
+     * Reconstruction: 
+     * exp(r) = 1 + r + r^2/2 + (r^3 * p)
+     */
     double r2 = r * r;
-    double p = P5;
-    p = P4 + r2 * p;
-    p = P3 + r2 * p;
-    p = P2 + r2 * p;
-    p = P1 + r2 * p;
-
-    double c = r - r2 * p;
-    double result = 1.0 + ((r * c) / (2.0 - c) * 2.0 + r);
+    double result = 1.0 + r + (r2 * 0.5) + (r2 * r * p);
 
     /* Reconstruct 2^k * result using ldexp (fast bit manip) */
     return ldexp(result, k);

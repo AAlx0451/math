@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #if defined(__GNUC__) || defined(__clang__)
-#  define NAN       __builtin_nanf("")
+#  define NAN       (double)(__builtin_nanf(""))
 #  define HUGE_VAL  __builtin_huge_val()
 #  define INFINITY  __builtin_inf()
 #  define isfinite(x) __builtin_isfinite(x)
@@ -54,8 +54,6 @@ double trunc(double x);
 double sinh(double x);
 double cosh(double x);
 double tanh(double x);
-double j0(double x);
-double j1(double x);
-double jn(int n, double x);
+double round(double x);
 
 #endif /* MATH_H */

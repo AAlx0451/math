@@ -12,7 +12,6 @@
 #include <errno.h>
 
 static const double LOG2 = 0.693147180559945309417;
-static const double LN10_INV = 0.43429448190325182765;
 
 static const double 
 lp0 = -0.240139179559210510e2,
@@ -50,12 +49,4 @@ double log(double x) {
     double den = ((z2 + lq2) * z2 + lq1) * z2 + lq0;
     
     return k * LOG2 + z * (num / den);
-}
-
-double log10(double x) {
-    return log(x) * LN10_INV;
-}
-
-double log2(double x) {
-    return log(x) / LOG2;
 }

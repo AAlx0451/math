@@ -5,9 +5,6 @@
 #include "math_private.h"
 #include <errno.h>
 
-static const double M_PI_2 = 1.57079632679489661923;
-static const double M_PI   = 3.14159265358979323846;
-
 double acos(double x) {
     if (x < -1.0 || x > 1.0) {
         errno = EDOM;

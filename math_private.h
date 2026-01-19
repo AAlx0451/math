@@ -28,4 +28,8 @@ typedef union {
     (d) = iw_u.value; \
 } while (0)
 
+static const double M_PI = 3.14159265358979323846;
+static const double M_PI_2 = 1.57079632679489661923;
+static const double M_PI_4 = 0.78539816339744830962;
+
 #endif

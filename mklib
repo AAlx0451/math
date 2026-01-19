@@ -1,1 +1,1 @@
-for f in *.c; do cc -c $f -O3 -w -I.; done ; ar rcs libm.a *o ; rm *o
+rm libm.a ; for f in *.c; do cc -c $f -O3 -w -I.; done ; ar rcs libm.a *o ; rm *o
