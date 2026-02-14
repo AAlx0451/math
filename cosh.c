@@ -11,8 +11,8 @@
  * - Handling of the overflow gap between exp(x) and cosh(x)
  */
 
-#include <math.h>
 #include <errno.h>
+#include <math.h>
 
 /* log(DBL_MAX_VALUE) */
 static const double o_threshold = 7.09782712893383973096e+02;
@@ -23,15 +23,16 @@ static const double ln2 = 0.693147180559945309417;
 
 double cosh(double x) {
     /* IEEE 754: cosh(NaN) = NaN, cosh(+-Inf) = +Inf */
-    if (!isfinite(x)) {
-        if (isnan(x)) return x;
+    if(!isfinite(x)) {
+        if(isnan(x))
+            return x;
         return HUGE_VAL;
     }
 
     double ax = fabs(x);
     double h;
 
-    if (ax > ch_max) {
+    if(ax > ch_max) {
         errno = ERANGE;
         return HUGE_VAL;
     }
@@ -42,10 +43,10 @@ double cosh(double x) {
      * |x| >= o_threshold: Use exp(x - ln2) to avoid intermediate overflow
      */
 
-    if (ax < 22.0) {
+    if(ax < 22.0) {
         double e = exp(ax);
         h = 0.5 * (e + 1.0 / e);
-    } else if (ax < o_threshold) {
+    } else if(ax < o_threshold) {
         h = 0.5 * exp(ax);
     } else {
         /* Critical range: [709.78, 710.47] */

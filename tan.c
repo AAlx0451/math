@@ -16,12 +16,12 @@ static const double M_2_PI = 0.63661977236758134308;
  * tan(x) ~ x + T1*x^3 + T2*x^5 ...
  */
 static const double
-T1 = 0.333333333333334091986,
-T2 = 0.133333333333201242699,
-T3 = 0.0539682539762265521083,
-T4 = 0.0218694882948595424599,
-T5 = 0.00886323982359975800586,
-T6 = 0.00359207910759131235356;
+    T1 = 0.333333333333334091986,
+    T2 = 0.133333333333201242699,
+    T3 = 0.0539682539762265521083,
+    T4 = 0.0218694882948595424599,
+    T5 = 0.00886323982359975800586,
+    T6 = 0.00359207910759131235356;
 
 static inline double _tan_kernel(double x) {
     double z = x * x;
@@ -35,20 +35,21 @@ static inline double _tan_kernel(double x) {
 }
 
 double tan(double x) {
-    if (!isfinite(x)) {
+    if(!isfinite(x)) {
         errno = EDOM;
         return NAN;
     }
-    if (x == 0.0) return x;
+    if(x == 0.0)
+        return x;
 
-    if (fabs(x) > 1.0e9) {
+    if(fabs(x) > 1.0e9) {
         errno = EDOM;
         return 0.0;
     }
 
     double n = floor(x * M_2_PI + 0.5);
     double r = (x - n * C1) - n * C2 - n * C3;
-    
+
     int64_t n_int = (int64_t)n;
 
     /*
@@ -59,9 +60,9 @@ double tan(double x) {
 
     double t = _tan_kernel(r);
 
-    if (n_int & 1) {
+    if(n_int & 1) {
         /* Cotangent case */
-        if (t == 0.0) {
+        if(t == 0.0) {
             /* r was 0, so x was n*pi/2 (vertical asymptote) */
             errno = ERANGE;
             return (x > 0) ? HUGE_VAL : -HUGE_VAL; /* Sign is technically ill-defined here but Inf is required */

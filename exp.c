@@ -11,8 +11,8 @@
  * Degree 12 is required to keep error below 1e-16 for |r| < ln(2)/2.
  */
 
-#include <math.h>
 #include <errno.h>
+#include <math.h>
 #include <stdint.h>
 
 static const double LN2_HI = 6.93147180369123816490e-01;
@@ -21,29 +21,32 @@ static const double INV_LN2 = 1.44269504088896340736;
 
 /* Inverse factorial coefficients for Taylor series: 1/n! */
 static const double
-P3  = 1.66666666666666666667e-01, /* 1/6 */
-P4  = 4.16666666666666666667e-02, /* 1/24 */
-P5  = 8.33333333333333333333e-03, /* 1/120 */
-P6  = 1.38888888888888888889e-03, /* 1/720 */
-P7  = 1.98412698412698412698e-04, /* 1/5040 */
-P8  = 2.48015873015873015873e-05, /* 1/40320 */
-P9  = 2.75573192239858906526e-06, /* 1/362880 */
-P10 = 2.75573192239858906526e-07, /* 1/3628800 */
-P11 = 2.50521083854417187751e-08, /* 1/39916800 */
-P12 = 2.08767569878680989792e-09; /* 1/479001600 */
+    P3 = 1.66666666666666666667e-01,  /* 1/6 */
+    P4 = 4.16666666666666666667e-02,  /* 1/24 */
+    P5 = 8.33333333333333333333e-03,  /* 1/120 */
+    P6 = 1.38888888888888888889e-03,  /* 1/720 */
+    P7 = 1.98412698412698412698e-04,  /* 1/5040 */
+    P8 = 2.48015873015873015873e-05,  /* 1/40320 */
+    P9 = 2.75573192239858906526e-06,  /* 1/362880 */
+    P10 = 2.75573192239858906526e-07, /* 1/3628800 */
+    P11 = 2.50521083854417187751e-08, /* 1/39916800 */
+    P12 = 2.08767569878680989792e-09; /* 1/479001600 */
 
 double exp(double x) {
-    if (isnan(x)) return x;
-    if (x == HUGE_VAL) return x;
-    if (x == -HUGE_VAL) return 0.0;
+    if(isnan(x))
+        return x;
+    if(x == HUGE_VAL)
+        return x;
+    if(x == -HUGE_VAL)
+        return 0.0;
 
     /* Boundary check: exp(709.78) overflows double */
-    if (x > 709.78) {
+    if(x > 709.78) {
         errno = ERANGE;
         return HUGE_VAL;
     }
 
-    if (x < -745.0) {
+    if(x < -745.0) {
         /* Underflow to true zero */
         return 0.0;
     }
@@ -51,7 +54,7 @@ double exp(double x) {
     /* Range reduction: k = round(x / ln2) */
     double _z = floor(x * INV_LN2 + 0.5);
     int k = (int)_z;
-    
+
     /* r = x - k * ln2 */
     /* Calculated with extra precision using LN2_HI/LO to minimize error */
     double r = (x - _z * LN2_HI) - _z * LN2_LO;

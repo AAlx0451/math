@@ -9,21 +9,22 @@
  * Approximation #3522.
  */
 
-#include <math.h>
 #include <errno.h>
+#include <math.h>
 
 static const double
-th_p0 = -0.56386340242137666e5,
-th_p1 = -0.59023193616603091e4,
-th_p2 = -0.14589255269781878e3,
-th_q0 = -0.56386340242137666e5,
-th_q1 =  0.12894101140939525e5,
-th_q2 = -0.76019685324021202e3;
+    th_p0 = -0.56386340242137666e5,
+    th_p1 = -0.59023193616603091e4,
+    th_p2 = -0.14589255269781878e3,
+    th_q0 = -0.56386340242137666e5,
+    th_q1 = 0.12894101140939525e5,
+    th_q2 = -0.76019685324021202e3;
 
 double tanh(double x) {
     /* IEEE 754: tanh(NaN) = NaN, tanh(+-Inf) = +-1 */
-    if (!isfinite(x)) {
-        if (isnan(x)) return x;
+    if(!isfinite(x)) {
+        if(isnan(x))
+            return x;
         return (x > 0) ? 1.0 : -1.0;
     }
 
@@ -34,7 +35,7 @@ double tanh(double x) {
      * If |x| > 19, tanh(x) is essentially 1.0 (in double precision).
      * Also protects against overflow in exp(2*x).
      */
-    if (ax > 19.0) {
+    if(ax > 19.0) {
         return (x > 0) ? 1.0 : -1.0;
     }
 
@@ -47,8 +48,9 @@ double tanh(double x) {
      * If x is -0.0, formula results in -0.0 * (...), which returns -0.0.
      * Compliant.
      */
-    if (ax <= 0.57) {
-        if (ax < 1e-10) return x; 
+    if(ax <= 0.57) {
+        if(ax < 1e-10)
+            return x;
 
         double x2 = x * x;
         double num = (th_p2 * x2 + th_p1) * x2 + th_p0;

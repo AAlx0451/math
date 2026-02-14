@@ -12,27 +12,31 @@
 #include <stdint.h>
 
 double modf(double x, double *iptr) {
-    union { double f; uint64_t i; } u;
+    union {
+        double f;
+        uint64_t i;
+    } u;
     u.f = x;
     int e = (int)((u.i >> 52) & 0x7FF) - 1023;
 
-    if (e >= 52) {
+    if(e >= 52) {
         *iptr = x;
-        if (isnan(x)) return x;
+        if(isnan(x))
+            return x;
         u.i &= 0x8000000000000000ULL;
         return u.f;
     }
 
-    if (e < 0) {
+    if(e < 0) {
         u.i &= 0x8000000000000000ULL;
         *iptr = u.f;
         return x;
     }
 
     uint64_t m = -1ULL >> (12 + e);
-    
+
     u.i &= ~m;
     *iptr = u.f;
-    
+
     return x - u.f;
 }

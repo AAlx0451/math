@@ -7,7 +7,10 @@
 #include <stdint.h>
 
 double copysign(double x, double y) {
-    union { double f; uint64_t i; } ux, uy;
+    union {
+        double f;
+        uint64_t i;
+    } ux, uy;
     ux.f = x;
     uy.f = y;
     /* Take all value bits from x, take sign bit from y */

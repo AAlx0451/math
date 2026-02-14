@@ -11,15 +11,17 @@
 #include <math.h>
 
 double fmod(double x, double y) {
-    if (isnan(x) || isnan(y) || isinf(x) || y == 0.0) {
+    if(isnan(x) || isnan(y) || isinf(x) || y == 0.0) {
         return NAN;
     }
-    if (x == 0.0) return x;
+    if(x == 0.0)
+        return x;
 
     double div = x / y;
-    if (!isfinite(div)) return x;
+    if(!isfinite(div))
+        return x;
 
     double n = trunc(div);
-    
+
     return x - n * y;
 }

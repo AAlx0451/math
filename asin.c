@@ -11,7 +11,7 @@ static double _asin_kernel(double x) {
 }
 
 double asin(double x) {
-    if (x < -1.0 || x > 1.0) {
+    if(x < -1.0 || x > 1.0) {
         errno = EDOM;
         return NAN;
     }
@@ -20,7 +20,7 @@ double asin(double x) {
     double absx = fabs(x);
     double res;
 
-    if (absx < 0.5) {
+    if(absx < 0.5) {
         res = _asin_kernel(absx);
     } else {
         /* Use identity: asin(x) = pi/2 - 2*asin(sqrt((1-x)/2)) */

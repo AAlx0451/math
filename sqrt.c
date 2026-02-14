@@ -14,11 +14,12 @@
 #define SQRT_MAGIC 0x1FF8000000000000ULL
 
 double sqrt(double x) {
-    if (x < 0.0) {
+    if(x < 0.0) {
         errno = EDOM;
         return NAN;
     }
-    if (x == 0.0 || !isfinite(x)) return x;
+    if(x == 0.0 || !isfinite(x))
+        return x;
 
     /* Initial guess */
     uint64_t i;
@@ -40,6 +41,6 @@ double sqrt(double x) {
      */
     double e = x - y * y;
     y = y + e / (2.0 * y);
-    
+
     return y;
 }

@@ -6,7 +6,7 @@
 #include <errno.h>
 
 double acos(double x) {
-    if (x < -1.0 || x > 1.0) {
+    if(x < -1.0 || x > 1.0) {
         errno = EDOM;
         return NAN;
     }
@@ -17,13 +17,13 @@ double acos(double x) {
      * Identity: acos(x) = 2 * asin(sqrt((1-x)/2))
      */
 
-    if (x > 0.5) {
+    if(x > 0.5) {
         double z = sqrt(0.5 * (1.0 - x));
         /* asin(z) is computed accurately near 0 */
         return 2.0 * asin(z);
     }
-    
-    if (x < -0.5) {
+
+    if(x < -0.5) {
         /* acos(x) = pi - acos(-x) */
         double z = sqrt(0.5 * (1.0 + x)); /* 1 - (-x) */
         return M_PI - 2.0 * asin(z);

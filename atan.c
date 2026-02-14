@@ -10,13 +10,13 @@
  * Much more precise than simple Taylor for the reduced range.
  */
 static const double
-at0 =  0.0, /* x term is separate */
-at1 =  0.999999999999895256e0,
-at3 = -0.333333333324640166e0,
-at5 =  0.199999999247664653e0,
-at7 = -0.142857053550882998e0,
-at9 =  0.111108257088456885e0,
-at11= -0.090852331561668962e0;
+    at0 = 0.0, /* x term is separate */
+    at1 = 0.999999999999895256e0,
+    at3 = -0.333333333324640166e0,
+    at5 = 0.199999999247664653e0,
+    at7 = -0.142857053550882998e0,
+    at9 = 0.111108257088456885e0,
+    at11 = -0.090852331561668962e0;
 
 /*
  * Internal kernel: assumes x >= 0
@@ -25,14 +25,14 @@ at11= -0.090852331561668962e0;
  * 2. If x > 0.414, atan(x) = pi/4 + atan((x-1)/(x+1))
  */
 static double _atan_kernel(double x) {
-    if (x > 2.414213562373095) {
+    if(x > 2.414213562373095) {
         return M_PI_2 - _atan_kernel(1.0 / x);
     }
-    
-    if (x > 0.414213562373095) {
+
+    if(x > 0.414213562373095) {
         return M_PI_4 + _atan_kernel((x - 1.0) / (x + 1.0));
     }
-    
+
     /* Polynomial evaluation for small x (Horner's method) */
     double z = x * x;
     double p = at11;
@@ -40,15 +40,16 @@ static double _atan_kernel(double x) {
     p = at7 + z * p;
     p = at5 + z * p;
     p = at3 + z * p;
-    p = at1 + z * p; 
-    
-    return x * p; 
+    p = at1 + z * p;
+
+    return x * p;
 }
 
 double atan(double x) {
     /* Handle NaN */
-    if (isnan(x)) return x;
-    
+    if(isnan(x))
+        return x;
+
     double res = _atan_kernel(fabs(x));
     return (x < 0) ? -res : res;
 }
