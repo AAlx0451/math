@@ -10,7 +10,6 @@
  * Much more precise than simple Taylor for the reduced range.
  */
 static const double
-    at0 = 0.0, /* x term is separate */
     at1 = 0.999999999999895256e0,
     at3 = -0.333333333324640166e0,
     at5 = 0.199999999247664653e0,
