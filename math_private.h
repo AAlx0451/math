@@ -3,8 +3,8 @@
  * Internal helper macros and constants.
  */
 
-#ifndef _MATH_PRIVATE_H
-#define _MATH_PRIVATE_H
+#ifndef MATH_PRIVATE_H
+#define MATH_PRIVATE_H
 
 #include <stdint.h>
 #include <math.h>

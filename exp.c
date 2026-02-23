@@ -35,10 +35,8 @@ static const double
 double exp(double x) {
     if(isnan(x))
         return x;
-    if(x == HUGE_VAL)
-        return x;
-    if(x == -HUGE_VAL)
-        return 0.0;
+    if(isinf(x))
+        return (x > 0) ? x : 0.0;
 
     /* Boundary check: exp(709.78) overflows double */
     if(x > 709.78) {
