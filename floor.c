@@ -7,12 +7,14 @@
 #include <stdint.h>
 
 double floor(double x) {
+    int e;
+    uint64_t m;
     union {
         double f;
         uint64_t i;
     } u;
     u.f = x;
-    int e = (int)((u.i >> 52) & 0x7FF) - 1023;
+    e = (int)((u.i >> 52) & 0x7FF) - 1023;
 
     if(e >= 52)
         return x; /* Integer or NaN/Inf */
@@ -22,7 +24,7 @@ double floor(double x) {
         return (x > 0.0) ? 0.0 : -1.0;
     }
 
-    uint64_t m = 0xFFFFFFFFFFFFFFFFULL >> (12 + e);
+    m = 0xFFFFFFFFFFFFFFFFULL >> (12 + e);
     if((u.i & m) == 0)
         return x; /* Already integer */
 

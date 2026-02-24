@@ -2,10 +2,11 @@
  * Part of PD LibM
  */
 
-#include "math_private.h"
+#include <math.h>
 #include <errno.h>
 #include <float.h>
 #include <limits.h>
+#pragma clang diagnostic ignored "-Wreserved-identifier"
 
 /* Helper for integer exponentiation by squaring (Binary Exponentiation) */
 static double _pow_int(double b, int e) {
@@ -22,17 +23,18 @@ static double _pow_int(double b, int e) {
 }
 
 double pow(double x, double y) {
+    double y_int_part, res;
+    int y_is_int, odd_int;
     /* 1. Special cases */
     if(y == 0.0)
         return 1.0;
     if(x == 1.0)
         return 1.0;
     if(isnan(x) || isnan(y))
-        return NAN;
+        return (double)NAN;
 
     /* 2. Check integer status */
-    double y_int_part;
-    int y_is_int = (modf(y, &y_int_part) == 0.0);
+    y_is_int = (modf(y, &y_int_part) == 0.0);
 
     /* 3. Handle Infinity Exponents */
     if(isinf(y)) {
@@ -58,10 +60,10 @@ double pow(double x, double y) {
     if(x == 0.0) {
         if(y < 0.0) {
             errno = ERANGE;
-            int odd_int = y_is_int && ((int64_t)y_int_part % 2 != 0);
+            odd_int = y_is_int && ((int64_t)y_int_part % 2 != 0);
             return odd_int ? (copysign(HUGE_VAL, x)) : HUGE_VAL;
         }
-        int odd_int = y_is_int && ((int64_t)y_int_part % 2 != 0);
+        odd_int = y_is_int && ((int64_t)y_int_part % 2 != 0);
         return odd_int ? x : 0.0;
     }
 
@@ -69,11 +71,11 @@ double pow(double x, double y) {
     if(x < 0.0) {
         if(!y_is_int) {
             errno = EDOM;
-            return NAN;
+            return (double)NAN;
         }
         /* x^y = (-1)^y * |x|^y */
-        int odd_int = ((int64_t)y_int_part % 2 != 0);
-        double res = exp(y * log(-x));
+        odd_int = ((int64_t)y_int_part % 2 != 0);
+        res = exp(y * log(-x));
         return odd_int ? -res : res;
     }
 

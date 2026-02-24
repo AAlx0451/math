@@ -2,8 +2,9 @@
  * Part of PD LibM
  */
 
-#include "math_private.h"
+#include <math.h>
 #include <errno.h>
+#pragma clang diagnostic ignored "-Wreserved-identifier"
 
 /* Cody-Waite constants for Pi/2 reduction */
 static const double C1 = 1.57079632673412561417e+00;
@@ -62,6 +63,8 @@ static inline double _cos_kernel(double x) {
 }
 
 double sin(double x) {
+    double y, n, r, res;
+    int quad;
     if(!isfinite(x)) {
         errno = EDOM;
         return NAN;
@@ -69,7 +72,7 @@ double sin(double x) {
     if(x == 0.0)
         return x;
 
-    double y = fabs(x);
+    y = fabs(x);
 
     /* 
      * Argument Reduction.
@@ -82,24 +85,22 @@ double sin(double x) {
     }
 
     /* n = nearest integer to y / (pi/2) */
-    double n = floor(y * M_2_PI + 0.5);
+    n = floor(y * M_2_PI + 0.5);
 
     /* r = y - n * (pi/2) in high precision */
-    double r = (y - n * C1) - n * C2 - n * C3;
+    r = (y - n * C1) - n * C2 - n * C3;
 
     /* 
      * Quadrant determination.
      * n is double, but fits in int64 for reasonable inputs (< 1e9).
      * We need n mod 4.
      */
-    int quad = (int)((int64_t)n & 3);
+    quad = (int)((int64_t)n & 3);
 
     /* Fix sign of r if x was negative? 
      * Actually, better to solve for positive y, then fix sign of result.
      * sin(-x) = -sin(x).
      */
-
-    double res;
 
     /*
      * sin(n * pi/2 + r)

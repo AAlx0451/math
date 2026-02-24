@@ -13,7 +13,6 @@
 
 #include <errno.h>
 #include <math.h>
-#include <stdint.h>
 
 static const double LN2_HI = 6.93147180369123816490e-01;
 static const double LN2_LO = 1.90821492927058770002e-10;
@@ -33,6 +32,8 @@ static const double
     P12 = 2.08767569878680989792e-09; /* 1/479001600 */
 
 double exp(double x) {
+    int k;
+    double z, r, p, r2, result;
     if(isnan(x))
         return x;
     if(isinf(x))
@@ -50,18 +51,18 @@ double exp(double x) {
     }
 
     /* Range reduction: k = round(x / ln2) */
-    double _z = floor(x * INV_LN2 + 0.5);
-    int k = (int)_z;
+    z = floor(x * INV_LN2 + 0.5);
+    k = (int)z;
 
     /* r = x - k * ln2 */
     /* Calculated with extra precision using LN2_HI/LO to minimize error */
-    double r = (x - _z * LN2_HI) - _z * LN2_LO;
+    r = (x - z * LN2_HI) - z * LN2_LO;
 
     /* 
      * Horner's scheme for exp(r) - 1 - r - r^2/2
      * Poly = r^3/6 + ... + r^12/12!
      */
-    double p = P12;
+    p = P12;
     p = P11 + r * p;
     p = P10 + r * p;
     p = P9 + r * p;
@@ -76,8 +77,8 @@ double exp(double x) {
      * Reconstruction: 
      * exp(r) = 1 + r + r^2/2 + (r^3 * p)
      */
-    double r2 = r * r;
-    double result = 1.0 + r + (r2 * 0.5) + (r2 * r * p);
+    r2 = r * r;
+    result = 1.0 + r + (r2 * 0.5) + (r2 * r * p);
 
     /* Reconstruct 2^k * result using ldexp (fast bit manip) */
     return ldexp(result, k);

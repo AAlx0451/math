@@ -3,7 +3,7 @@
  */
 
 #include "math_private.h"
-#include <errno.h>
+#pragma clang diagnostic ignored "-Wreserved-identifier"
 
 /* 
  * Coefficients for Atan (Remez algorithm for |x| <= 0.414)
@@ -24,6 +24,8 @@ static const double
  * 2. If x > 0.414, atan(x) = pi/4 + atan((x-1)/(x+1))
  */
 static double _atan_kernel(double x) {
+    double z, p;
+
     if(x > 2.414213562373095) {
         return M_PI_2 - _atan_kernel(1.0 / x);
     }
@@ -33,8 +35,8 @@ static double _atan_kernel(double x) {
     }
 
     /* Polynomial evaluation for small x (Horner's method) */
-    double z = x * x;
-    double p = at11;
+    z = x * x;
+    p = at11;
     p = at9 + z * p;
     p = at7 + z * p;
     p = at5 + z * p;
@@ -45,10 +47,10 @@ static double _atan_kernel(double x) {
 }
 
 double atan(double x) {
+    double res;
     /* Handle NaN */
-    if(isnan(x))
-        return x;
+    if(isnan(x)) return x;
 
-    double res = _atan_kernel(fabs(x));
+    res = _atan_kernel(fabs(x));
     return (x < 0) ? -res : res;
 }

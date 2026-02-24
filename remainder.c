@@ -7,6 +7,7 @@
 #include <math.h>
 
 double remainder(double x, double y) {
+    double rem, abs_rem, abs_y, k;
     if(isnan(x) || isnan(y))
         return NAN;
     if(y == 0.0)
@@ -15,13 +16,13 @@ double remainder(double x, double y) {
         return NAN; /* x is Inf */
 
     /* Argument reduction using fmod to bring x near 0 */
-    double rem = fmod(x, y);
+    rem = fmod(x, y);
 
     if(rem == 0.0)
         return rem; // Keep sign of x
 
-    double abs_rem = fabs(rem);
-    double abs_y = fabs(y);
+    abs_rem = fabs(rem);
+    abs_y = fabs(y);
 
     /* If remainder > y/2, we went to the "wrong" integer in fmod (truncation) */
     if(abs_rem > 0.5 * abs_y) {
@@ -33,7 +34,7 @@ double remainder(double x, double y) {
     /* Tie-breaking: if exactly halfway, round to even quotient */
     else if(fabs(abs_rem - (0.5 * abs_y)) < DBL_EPSILON) {
         /* Determine quotient parity */
-        double k = (x - rem) / y;
+        k = (x - rem) / y;
         if(fmod(fabs(k), 2.0) == 1.0)
             rem += (rem > 0) ? -abs_y : abs_y;
     }

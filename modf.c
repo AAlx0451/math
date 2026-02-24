@@ -12,12 +12,14 @@
 #include <stdint.h>
 
 double modf(double x, double *iptr) {
+    int e;
+    uint64_t m;
     union {
         double f;
         uint64_t i;
     } u;
     u.f = x;
-    int e = (int)((u.i >> 52) & 0x7FF) - 1023;
+    e = (int)((u.i >> 52) & 0x7FF) - 1023;
 
     if(e >= 52) {
         *iptr = x;
@@ -33,7 +35,7 @@ double modf(double x, double *iptr) {
         return x;
     }
 
-    uint64_t m = -1ULL >> (12 + e);
+    m = -1ULL >> (12 + e);
 
     u.i &= ~m;
     *iptr = u.f;

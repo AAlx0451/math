@@ -4,9 +4,9 @@
 
 #include "math.h"
 #include "math_private.h"
-#include <errno.h>
 
 double atan2(double y, double x) {
+    double v, z;
     if(isnan(x) || isnan(y))
         return NAN;
 
@@ -15,7 +15,7 @@ double atan2(double y, double x) {
         if(isinf(x)) {
             if(isinf(y)) {
                 /* Inf / Inf -> +/- pi/4 or 3pi/4 */
-                double v = (y > 0) ? (M_PI / 4) : -(M_PI / 4);
+                v = (y > 0) ? (M_PI / 4) : -(M_PI / 4);
                 if(x < 0)
                     v = (y > 0) ? (3 * M_PI / 4) : -(3 * M_PI / 4);
                 return v;
@@ -41,7 +41,7 @@ double atan2(double y, double x) {
     }
 
     /* Calculate via atan() with argument reduction */
-    double z = atan(fabs(y / x));
+    z = atan(fabs(y / x));
 
     /* Adjust quadrant placement */
     if(x > 0) {

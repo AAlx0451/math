@@ -4,6 +4,7 @@
 
 #include "math_private.h"
 #include <errno.h>
+#pragma clang diagnostic ignored "-Wreserved-identifier"
 
 static double _asin_kernel(double x) {
     double z = x * x;
@@ -11,21 +12,22 @@ static double _asin_kernel(double x) {
 }
 
 double asin(double x) {
+    int sign;
+    double absx, res, z;
     if(x < -1.0 || x > 1.0) {
         errno = EDOM;
         return NAN;
     }
 
-    int sign = (x < 0);
-    double absx = fabs(x);
-    double res;
+    sign = (x < 0);
+    absx = fabs(x);
 
     if(absx < 0.5) {
         res = _asin_kernel(absx);
     } else {
         /* Use identity: asin(x) = pi/2 - 2*asin(sqrt((1-x)/2)) */
         /* This handles the edge near 1.0 gracefully */
-        double z = sqrt(0.5 * (1.0 - absx));
+        z = sqrt(0.5 * (1.0 - absx));
         res = M_PI_2 - 2.0 * _asin_kernel(z);
     }
 

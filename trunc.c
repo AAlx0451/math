@@ -7,12 +7,14 @@
 #include <stdint.h>
 
 double trunc(double x) {
+    int e;
+    uint64_t m;
     union {
         double f;
         uint64_t i;
     } u;
     u.f = x;
-    int e = (int)((u.i >> 52) & 0x7FF) - 1023;
+    e = (int)((u.i >> 52) & 0x7FF) - 1023;
 
     /* If exponent >= 52, it's already integer or Inf/NaN */
     if(e >= 52)
@@ -27,7 +29,7 @@ double trunc(double x) {
 
     /* Mask out fractional bits based on exponent */
     /* 52 bits of mantissa. We keep 'e' bits + implied 1. */
-    uint64_t m = -1ULL >> (12 + e);
+    m = -1ULL >> (12 + e);
 
     /* If masked bits are 0, it is already integer */
     if((u.i & m) == 0)

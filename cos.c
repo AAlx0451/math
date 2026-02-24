@@ -2,8 +2,9 @@
  * Part of PD LibM
  */
 
-#include "math_private.h"
+#include <math.h>
 #include <errno.h>
+#pragma clang diagnostic ignored "-Wreserved-identifier"
 
 /* Reduction constants */
 static const double C1 = 1.57079632673412561417e+00;
@@ -52,21 +53,22 @@ static inline double _cos_kernel(double x) {
 }
 
 double cos(double x) {
+    double y, n, r, res;
+    int quad;
     if(!isfinite(x)) {
         errno = EDOM;
         return NAN;
     }
 
-    double y = fabs(x);
+    y = fabs(x);
     if(y > 1.0e9) {
         errno = EDOM;
         return 0.0;
     }
 
-    double n = floor(y * M_2_PI + 0.5);
-    double r = (y - n * C1) - n * C2 - n * C3;
-
-    int quad = (int)((int64_t)n & 3);
+    n = floor(y * M_2_PI + 0.5);
+    r = (y - n * C1) - n * C2 - n * C3;
+    quad = (int)((int64_t)n & 3);
 
     /*
      * cos(n * pi/2 + r)
@@ -75,8 +77,6 @@ double cos(double x) {
      * n=2: cos(pi+r)    -> -cos(r)
      * n=3: cos(3pi/2+r) -> sin(r)
      */
-
-    double res;
 
     switch(quad) {
     case 0:

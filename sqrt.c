@@ -14,6 +14,8 @@
 #define SQRT_MAGIC 0x1FF8000000000000ULL
 
 double sqrt(double x) {
+    uint64_t i;
+    double y, e;
     if(x < 0.0) {
         errno = EDOM;
         return NAN;
@@ -22,10 +24,8 @@ double sqrt(double x) {
         return x;
 
     /* Initial guess */
-    uint64_t i;
     EXTRACT_WORD64(i, x);
     i = (i >> 1) + SQRT_MAGIC;
-    double y;
     INSERT_WORD64(y, i);
 
     /* Heron's Iterations (Newton) */
@@ -39,7 +39,7 @@ double sqrt(double x) {
      * Check if y*y is correctly related to x to within 0.5 ULP.
      * Simple correction step: y = y + (x - y*y) / (2*y)
      */
-    double e = x - y * y;
+    e = x - y * y;
     y = y + e / (2.0 * y);
 
     return y;

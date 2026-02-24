@@ -6,11 +6,13 @@
 #include <math.h>
 
 double ceil(double x) {
-    uint64_t i;
+    uint64_t i, m;
+    double r;
+    int e;
     EXTRACT_WORD64(i, x);
 
     /* Extract exponent: bits 62-52 */
-    int e = (int)((i >> 52) & 0x7FF) - 1023;
+    e = (int)((i >> 52) & 0x7FF) - 1023;
 
     /* Case 1: Exponent is large (>= 52). Number is already integer. */
     if(e >= 52)
@@ -31,7 +33,7 @@ double ceil(double x) {
     }
 
     /* Case 3: Normal range with fractional part */
-    uint64_t m = 0xFFFFFFFFFFFFFFFFULL >> (12 + e);
+    m = 0xFFFFFFFFFFFFFFFFULL >> (12 + e);
 
     /* If fractional bits are already zero, return x */
     if((i & m) == 0)
@@ -44,13 +46,11 @@ double ceil(double x) {
         /* Positive: Mask fraction, implies floor. Add 1.0 safely */
         /* It is safer to use float math for the increment to handle carry */
         i &= ~m;
-        double r;
         INSERT_WORD64(r, i);
         return r + 1.0;
     } else {
         /* Negative: Mask fraction (truncation) is ceil */
         i &= ~m;
-        double r;
         INSERT_WORD64(r, i);
         return r;
     }

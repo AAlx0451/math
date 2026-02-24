@@ -22,6 +22,8 @@ static const double ch_max = 7.10475860073943977113e+02;
 static const double ln2 = 0.693147180559945309417;
 
 double cosh(double x) {
+    double h, ax, e;
+
     /* IEEE 754: cosh(NaN) = NaN, cosh(+-Inf) = +Inf */
     if(!isfinite(x)) {
         if(isnan(x))
@@ -29,8 +31,7 @@ double cosh(double x) {
         return HUGE_VAL;
     }
 
-    double ax = fabs(x);
-    double h;
+    ax = fabs(x);
 
     if(ax > ch_max) {
         errno = ERANGE;
@@ -44,7 +45,7 @@ double cosh(double x) {
      */
 
     if(ax < 22.0) {
-        double e = exp(ax);
+        e = exp(ax);
         h = 0.5 * (e + 1.0 / e);
     } else if(ax < o_threshold) {
         h = 0.5 * exp(ax);

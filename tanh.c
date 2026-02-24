@@ -9,7 +9,6 @@
  * Approximation #3522.
  */
 
-#include <errno.h>
 #include <math.h>
 
 static const double
@@ -21,6 +20,7 @@ static const double
     th_q2 = -0.76019685324021202e3;
 
 double tanh(double x) {
+    double ax, x2, num, den, e2x, res;
     /* IEEE 754: tanh(NaN) = NaN, tanh(+-Inf) = +-1 */
     if(!isfinite(x)) {
         if(isnan(x))
@@ -28,7 +28,7 @@ double tanh(double x) {
         return (x > 0) ? 1.0 : -1.0;
     }
 
-    double ax = fabs(x);
+    ax = fabs(x);
 
     /* 
      * Range reduction:
@@ -52,9 +52,9 @@ double tanh(double x) {
         if(ax < 1e-10)
             return x;
 
-        double x2 = x * x;
-        double num = (th_p2 * x2 + th_p1) * x2 + th_p0;
-        double den = ((x2 + th_q2) * x2 + th_q1) * x2 + th_q0;
+        x2 = x * x;
+        num = (th_p2 * x2 + th_p1) * x2 + th_p0;
+        den = ((x2 + th_q2) * x2 + th_q1) * x2 + th_q0;
 
         return x * (num / den);
     }
@@ -63,8 +63,8 @@ double tanh(double x) {
      * Medium x:
      * tanh(x) = (e^2x - 1) / (e^2x + 1) = 1 - 2 / (e^2x + 1)
      */
-    double e2x = exp(2.0 * ax);
-    double res = 1.0 - 2.0 / (e2x + 1.0);
+    e2x = exp(2.0 * ax);
+    res = 1.0 - 2.0 / (e2x + 1.0);
 
     return (x < 0) ? -res : res;
 }

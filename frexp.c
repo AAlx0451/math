@@ -7,12 +7,13 @@
 #include <stdint.h>
 
 double frexp(double x, int *exp) {
+    int e;
     union {
         double f;
         uint64_t i;
     } u;
     u.f = x;
-    int e = (int)((u.i >> 52) & 0x7FF);
+    e = (int)((u.i >> 52) & 0x7FF);
 
     if(e == 0) { /* Subnormal */
         if(x == 0.0) {

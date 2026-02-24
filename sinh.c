@@ -32,13 +32,13 @@ static const double sh_max = 7.10475860073943977113e+02;
 static const double ln2 = 0.693147180559945309417;
 
 double sinh(double x) {
+    double ax, h, x2, num, den, e;
     /* IEEE 754: sinh(NaN) = NaN, sinh(Inf) = Inf */
     if(!isfinite(x)) {
         return x; /* Returns x (including NaN and Inf with sign) */
     }
 
-    double ax = fabs(x);
-    double h;
+    ax = fabs(x);
 
     /* 
      * IEEE 754: sinh(+-0) = +-0. 
@@ -49,9 +49,9 @@ double sinh(double x) {
         if(ax < 1e-10)
             return x;
 
-        double x2 = x * x;
-        double num = (p2 * x2 + p1) * x2 + p0;
-        double den = ((x2 + q2) * x2 + q1) * x2 + q0;
+        x2 = x * x;
+        num = (p2 * x2 + p1) * x2 + p0;
+        den = ((x2 + q2) * x2 + q1) * x2 + q0;
         return x * (num / den);
     }
 
@@ -71,7 +71,7 @@ double sinh(double x) {
      */
 
     if(ax < o_threshold) {
-        double e = exp(ax);
+        e = exp(ax);
         h = 0.5 * (e - 1.0 / e);
     } else {
         /* 

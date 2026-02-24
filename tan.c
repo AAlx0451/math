@@ -2,8 +2,9 @@
  * Part of PD LibM
  */
 
-#include "math_private.h"
+#include <math.h>
 #include <errno.h>
+#pragma clang diagnostic ignored "-Wreserved-identifier"
 
 static const double C1 = 1.57079632673412561417e+00;
 static const double C2 = 6.07710050650619224932e-11;
@@ -35,6 +36,8 @@ static inline double _tan_kernel(double x) {
 }
 
 double tan(double x) {
+    double n, r, t;
+    int64_t n_int;
     if(!isfinite(x)) {
         errno = EDOM;
         return NAN;
@@ -47,10 +50,10 @@ double tan(double x) {
         return 0.0;
     }
 
-    double n = floor(x * M_2_PI + 0.5);
-    double r = (x - n * C1) - n * C2 - n * C3;
+    n = floor(x * M_2_PI + 0.5);
+    r = (x - n * C1) - n * C2 - n * C3;
 
-    int64_t n_int = (int64_t)n;
+    n_int = (int64_t)n;
 
     /*
      * tan(x) = tan(n*pi/2 + r)
@@ -58,7 +61,7 @@ double tan(double x) {
      * If n is odd:  tan(pi/2 + r) = -cot(r) = -1/tan(r)
      */
 
-    double t = _tan_kernel(r);
+    t = _tan_kernel(r);
 
     if(n_int & 1) {
         /* Cotangent case */

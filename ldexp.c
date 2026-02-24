@@ -8,6 +8,10 @@
 #include <stdint.h>
 
 double ldexp(double x, int exp) {
+    union {
+        double f;
+        uint64_t i;
+    } u;
     if(exp == 0 || x == 0.0)
         return x;
     if(!isfinite(x))
@@ -23,10 +27,6 @@ double ldexp(double x, int exp) {
                 return (x > 0) ? HUGE_VAL : -HUGE_VAL;
             }
         }
-        union {
-            double f;
-            uint64_t i;
-        } u;
         u.i = (uint64_t)(exp + 1023) << 52;
         return x * u.f;
     } else {
@@ -35,10 +35,6 @@ double ldexp(double x, int exp) {
             x *= 2.2250738585072014e-308; /* 2^-1022 */
             exp += 1022;
         }
-        union {
-            double f;
-            uint64_t i;
-        } u;
         u.i = (uint64_t)(exp + 1023) << 52;
         return x * u.f;
     }
