@@ -2,10 +2,10 @@
  * Part of PD LibM
  */
 
-#include <math.h>
 #include <errno.h>
 #include <float.h>
 #include <limits.h>
+#include <math.h>
 #pragma clang diagnostic ignored "-Wreserved-identifier"
 
 /* Helper for integer exponentiation by squaring (Binary Exponentiation) */
@@ -47,8 +47,8 @@ double pow(double x, double y) {
             return (ax > 1.0) ? 0.0 : HUGE_VAL;
     }
 
-    /* 
-     * 4. Integer Exponent Optimization 
+    /*
+     * 4. Integer Exponent Optimization
      * If y is a safe integer, use binary exponentiation for exact results.
      * This fixes precision issues like pow(2, 3) != 8.0
      */

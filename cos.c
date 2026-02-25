@@ -2,8 +2,8 @@
  * Part of PD LibM
  */
 
-#include <math.h>
 #include <errno.h>
+#include <math.h>
 #pragma clang diagnostic ignored "-Wreserved-identifier"
 
 /* Reduction constants */

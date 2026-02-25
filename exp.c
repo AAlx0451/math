@@ -7,7 +7,7 @@
  * Academic Source:
  * Standard Range Reduction + Taylor Series up to degree 12.
  * exp(x) = 2^k * exp(r)
- * 
+ *
  * Degree 12 is required to keep error below 1e-16 for |r| < ln(2)/2.
  */
 
@@ -58,7 +58,7 @@ double exp(double x) {
     /* Calculated with extra precision using LN2_HI/LO to minimize error */
     r = (x - z * LN2_HI) - z * LN2_LO;
 
-    /* 
+    /*
      * Horner's scheme for exp(r) - 1 - r - r^2/2
      * Poly = r^3/6 + ... + r^12/12!
      */
@@ -73,8 +73,8 @@ double exp(double x) {
     p = P4 + r * p;
     p = P3 + r * p;
 
-    /* 
-     * Reconstruction: 
+    /*
+     * Reconstruction:
      * exp(r) = 1 + r + r^2/2 + (r^3 * p)
      */
     r2 = r * r;

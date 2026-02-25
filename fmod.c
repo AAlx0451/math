@@ -19,7 +19,8 @@ double fmod(double x, double y) {
         return x;
 
     div = x / y;
-    if(!isfinite(div)) return x;
+    if(!isfinite(div))
+        return x;
 
     n = trunc(div);
 

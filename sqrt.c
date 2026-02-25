@@ -6,7 +6,7 @@
 #include "math_private.h"
 #include <errno.h>
 
-/* 
+/*
  * Magic constant origin:
  * Derived from 3/2 * 2^52 * (127 - sigma)
  * Approximation for 1/sqrt(x) initial guess.
@@ -34,7 +34,7 @@ double sqrt(double x) {
     y = 0.5 * (y + x / y);
     y = 0.5 * (y + x / y);
 
-    /* 
+    /*
      * Tuckerman rounding test / Adjustment:
      * Check if y*y is correctly related to x to within 0.5 ULP.
      * Simple correction step: y = y + (x - y*y) / (2*y)

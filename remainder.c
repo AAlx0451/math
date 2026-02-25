@@ -1,6 +1,6 @@
 /*
  * Part of PD LibM
- * Originally made for Small-LibC 
+ * Originally made for Small-LibC
  */
 
 #include <float.h>

@@ -1,6 +1,6 @@
 /*
  * Part of PD LibM
- * Originally made for Small-LibC 
+ * Originally made for Small-LibC
  */
 
 /*
@@ -38,7 +38,7 @@ double cosh(double x) {
         return HUGE_VAL;
     }
 
-    /* 
+    /*
      * |x| < 22.0: Use full formula (e^x + e^-x)/2
      * 22.0 <= |x| < o_threshold: e^-x is negligible, use exp(x)/2
      * |x| >= o_threshold: Use exp(x - ln2) to avoid intermediate overflow

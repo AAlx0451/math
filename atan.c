@@ -5,7 +5,7 @@
 #include "math_private.h"
 #pragma clang diagnostic ignored "-Wreserved-identifier"
 
-/* 
+/*
  * Coefficients for Atan (Remez algorithm for |x| <= 0.414)
  * Much more precise than simple Taylor for the reduced range.
  */
@@ -49,7 +49,8 @@ static double _atan_kernel(double x) {
 double atan(double x) {
     double res;
     /* Handle NaN */
-    if(isnan(x)) return x;
+    if(isnan(x))
+        return x;
 
     res = _atan_kernel(fabs(x));
     return (x < 0) ? -res : res;

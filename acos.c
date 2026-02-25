@@ -11,7 +11,7 @@ double acos(double x) {
         return NAN;
     }
 
-    /* 
+    /*
      * When x is near 1, acos(x) is close to 0.
      * Direct computation pi/2 - asin(x) involves cancellation (pi/2 - ~pi/2).
      * Identity: acos(x) = 2 * asin(sqrt((1-x)/2))

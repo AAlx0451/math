@@ -1,6 +1,6 @@
 /*
  * Part of PD LibM
- * Originally made for Small-LibC 
+ * Originally made for Small-LibC
  */
 
 /*
@@ -40,8 +40,8 @@ double sinh(double x) {
 
     ax = fabs(x);
 
-    /* 
-     * IEEE 754: sinh(+-0) = +-0. 
+    /*
+     * IEEE 754: sinh(+-0) = +-0.
      * Logic handles this naturally, but explicit check optimizes.
      * Also handles underflow range.
      */
@@ -61,11 +61,11 @@ double sinh(double x) {
         return (x > 0) ? HUGE_VAL : -HUGE_VAL;
     }
 
-    /* 
+    /*
      * Calculation logic:
      * 1. Normal range: sinh(x) = (e^x - 1/e^x) / 2
      * 2. Large range:  sinh(x) ~= e^x / 2
-     * 3. Critical range (near overflow): 
+     * 3. Critical range (near overflow):
      *    exp(x) would overflow, but result is finite.
      *    Use exp(x - ln2) which equals e^x / 2 directly.
      */
@@ -74,8 +74,8 @@ double sinh(double x) {
         e = exp(ax);
         h = 0.5 * (e - 1.0 / e);
     } else {
-        /* 
-         * x is in [709.78, 710.47]. 
+        /*
+         * x is in [709.78, 710.47].
          * direct exp(x) overflows, but sinh(x) is valid.
          * sinh(x) approx exp(x)/2 = exp(x - ln2)
          */

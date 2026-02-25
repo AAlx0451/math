@@ -1,6 +1,6 @@
 /*
  * Part of PD LibM
- * Originally made for Small-LibC 
+ * Originally made for Small-LibC
  */
 
 /*
@@ -30,7 +30,7 @@ double tanh(double x) {
 
     ax = fabs(x);
 
-    /* 
+    /*
      * Range reduction:
      * If |x| > 19, tanh(x) is essentially 1.0 (in double precision).
      * Also protects against overflow in exp(2*x).
@@ -43,7 +43,7 @@ double tanh(double x) {
      * Small x (0 <= |x| <= 0.57):
      * Use Hart & Cheney #3522.
      * tanh(x) = x * P(x^2) / Q(x^2).
-     * 
+     *
      * Note on Signed Zero:
      * If x is -0.0, formula results in -0.0 * (...), which returns -0.0.
      * Compliant.

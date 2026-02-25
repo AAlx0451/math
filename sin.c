@@ -2,8 +2,8 @@
  * Part of PD LibM
  */
 
-#include <math.h>
 #include <errno.h>
+#include <math.h>
 #pragma clang diagnostic ignored "-Wreserved-identifier"
 
 /* Cody-Waite constants for Pi/2 reduction */
@@ -12,7 +12,7 @@ static const double C2 = 6.07710050650619224932e-11;
 static const double C3 = 1.90821492927058770002e-20;
 static const double M_2_PI = 0.63661977236758134308;
 
-/* 
+/*
  * Sin Kernel Coefficients (Radians)
  * Range: [-pi/4, +pi/4]
  * sin(x) ~ x + S1*x^3 + S2*x^5 ...
@@ -25,7 +25,7 @@ static const double
     S5 = -2.50507602534068634195e-08,
     S6 = 1.58969099521155010221e-10;
 
-/* 
+/*
  * Cos Kernel Coefficients (Radians)
  * Range: [-pi/4, +pi/4]
  * cos(x) ~ 1 + C1*x^2 + C2*x^4 ...
@@ -74,7 +74,7 @@ double sin(double x) {
 
     y = fabs(x);
 
-    /* 
+    /*
      * Argument Reduction.
      * For y > 1e9, precision is lost entirely without 1024-bit pi.
      * Returning 0.0 or error is safer than returning garbage.
@@ -90,14 +90,14 @@ double sin(double x) {
     /* r = y - n * (pi/2) in high precision */
     r = (y - n * C1) - n * C2 - n * C3;
 
-    /* 
+    /*
      * Quadrant determination.
      * n is double, but fits in int64 for reasonable inputs (< 1e9).
      * We need n mod 4.
      */
     quad = (int)((int64_t)n & 3);
 
-    /* Fix sign of r if x was negative? 
+    /* Fix sign of r if x was negative?
      * Actually, better to solve for positive y, then fix sign of result.
      * sin(-x) = -sin(x).
      */

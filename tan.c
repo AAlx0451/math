@@ -2,8 +2,8 @@
  * Part of PD LibM
  */
 
-#include <math.h>
 #include <errno.h>
+#include <math.h>
 #pragma clang diagnostic ignored "-Wreserved-identifier"
 
 static const double C1 = 1.57079632673412561417e+00;
@@ -11,8 +11,8 @@ static const double C2 = 6.07710050650619224932e-11;
 static const double C3 = 1.90821492927058770002e-20;
 static const double M_2_PI = 0.63661977236758134308;
 
-/* 
- * Tan Kernel Coefficients (Radians) 
+/*
+ * Tan Kernel Coefficients (Radians)
  * Range: [-pi/4, +pi/4]
  * tan(x) ~ x + T1*x^3 + T2*x^5 ...
  */

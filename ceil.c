@@ -39,7 +39,7 @@ double ceil(double x) {
     if((i & m) == 0)
         return x;
 
-    /* If positive, we truncate and add 1.0. 
+    /* If positive, we truncate and add 1.0.
      * If negative, we just truncate (which moves towards 0, i.e., up for negatives).
      */
     if((i >> 63) == 0) {
