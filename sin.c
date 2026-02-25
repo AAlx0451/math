@@ -4,6 +4,8 @@
 
 #include <errno.h>
 #include <math.h>
+
+#pragma clang diagnostic ignored "-Wunknown-warning-option"
 #pragma clang diagnostic ignored "-Wreserved-identifier"
 
 /* Cody-Waite constants for Pi/2 reduction */

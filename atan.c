@@ -3,6 +3,8 @@
  */
 
 #include "math_private.h"
+
+#pragma clang diagnostic ignored "-Wunknown-warning-option"
 #pragma clang diagnostic ignored "-Wreserved-identifier"
 
 /*

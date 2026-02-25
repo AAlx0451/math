@@ -6,6 +6,8 @@
 #include <float.h>
 #include <limits.h>
 #include <math.h>
+
+#pragma clang diagnostic ignored "-Wunknown-warning-option"
 #pragma clang diagnostic ignored "-Wreserved-identifier"
 
 /* Helper for integer exponentiation by squaring (Binary Exponentiation) */

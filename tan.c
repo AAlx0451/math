@@ -4,6 +4,8 @@
 
 #include <errno.h>
 #include <math.h>
+
+#pragma clang diagnostic ignored "-Wunknown-warning-option"
 #pragma clang diagnostic ignored "-Wreserved-identifier"
 
 static const double C1 = 1.57079632673412561417e+00;

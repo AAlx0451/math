@@ -4,6 +4,8 @@
 
 #include "math_private.h"
 #include <errno.h>
+
+#pragma clang diagnostic ignored "-Wunknown-warning-option"
 #pragma clang diagnostic ignored "-Wreserved-identifier"
 
 static double _asin_kernel(double x) {
